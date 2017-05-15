@@ -3,10 +3,12 @@
 var expect = require('expect.js');
 var createExpireTransform = require('../index');
 var moment = require('moment');
+var Map = require('immutable').Map;
+var fromJS = require('immutable').fromJS;
 
 describe('Redux persists transform expire', function () {
-  it('should do nothing if the state is an empty object', function (done) {
-    var state = {};
+  it('should do nothing if the state is an empty map', function (done) {
+    var state = Map();
     var transform = createExpireTransform();
 
     var inboundOutputState = transform.in(state);
@@ -19,11 +21,11 @@ describe('Redux persists transform expire', function () {
   });
 
   it('should return the same if the state doesnt have an expire date prop', function (done) {
-    var state = {
+    var state = fromJS({
       app: {
         data: [1, 2]
       }
-    };
+    });
 
     var transform = createExpireTransform();
 
@@ -37,7 +39,7 @@ describe('Redux persists transform expire', function () {
   });
 
   it('should return the same state if it contains an expire prop that is not expired', function (done) {
-    var state = {
+    var state = fromJS({
       app: {
         reducer: {
           data: {
@@ -46,7 +48,7 @@ describe('Redux persists transform expire', function () {
           }
         }
       }
-    };
+    });
 
     var transform = createExpireTransform();
 
@@ -60,7 +62,7 @@ describe('Redux persists transform expire', function () {
   });
 
   it('should return expire a node if it contains an expire prop that is expired', function (done) {
-    var state = {
+    var state = fromJS({
       app: {
         reducer: {
           data: {
@@ -69,7 +71,7 @@ describe('Redux persists transform expire', function () {
           }
         }
       }
-    };
+    });
 
     var transform = createExpireTransform();
 
@@ -77,7 +79,7 @@ describe('Redux persists transform expire', function () {
     var outboundOutputState = transform.out(state);
 
     expect(inboundOutputState).to.eql(state);
-    expect(outboundOutputState).to.eql({
+    expect(outboundOutputState).to.eql(fromJS({
       app: {
         reducer: {
           data: {
@@ -85,7 +87,7 @@ describe('Redux persists transform expire', function () {
           }
         }
       }
-    });
+    }));
 
     done();
   });
@@ -93,7 +95,7 @@ describe('Redux persists transform expire', function () {
   it('should return expire a node if it contains an expire prop that is expired on an array', function (done) {
     var notExpiredDate = moment().add(1, 'hour').toDate();
 
-    var state = {
+    var state = fromJS({
       app: {
         reducer: {
           data: [{
@@ -105,7 +107,7 @@ describe('Redux persists transform expire', function () {
           }]
         }
       }
-    };
+    });
 
     var transform = createExpireTransform();
 
@@ -113,7 +115,7 @@ describe('Redux persists transform expire', function () {
     var outboundOutputState = transform.out(state);
 
     expect(inboundOutputState).to.eql(state);
-    expect(outboundOutputState).to.eql({
+    expect(outboundOutputState).to.eql(fromJS({
       app: {
         reducer: {
           data: [{
@@ -124,20 +126,20 @@ describe('Redux persists transform expire', function () {
           }]
         }
       }
-    });
+    }));
 
     done();
   });
 
   it('should return an empty state if the root element has an expire prop that is expired', function (done) {
-    var state = {
+    var state = fromJS({
       app: {
         persistExpiresAt: moment().subtract(1, 'hour').toDate(),
         reducer: {
           data: [1, 2]
         }
       }
-    };
+    });
 
     var transform = createExpireTransform();
 
@@ -145,20 +147,20 @@ describe('Redux persists transform expire', function () {
     var outboundOutputState = transform.out(state);
 
     expect(inboundOutputState).to.eql(state);
-    expect(outboundOutputState).to.eql({ app: {} });
+    expect(outboundOutputState).to.eql(fromJS({ app: {} }));
 
     done();
   });
 
   it('should ignore the expire prop if it doesnt contain a valid date', function (done) {
-    var state = {
+    var state = fromJS({
       app: {
         persistExpiresAt: 'invalid-date',
         reducer: {
           data: [1, 2]
         }
       }
-    };
+    });
 
     var transform = createExpireTransform();
 
@@ -172,7 +174,7 @@ describe('Redux persists transform expire', function () {
   });
 
   it('should allow a user to override the expire prop key', function (done) {
-    var state = {
+    var state = fromJS({
       app: {
         reducer: {
           data: {
@@ -181,7 +183,7 @@ describe('Redux persists transform expire', function () {
           }
         }
       }
-    };
+    });
 
     var config = {
       expireKey: 'myExpireKey'
@@ -193,7 +195,7 @@ describe('Redux persists transform expire', function () {
     var outboundOutputState = transform.out(state);
 
     expect(inboundOutputState).to.eql(state);
-    expect(outboundOutputState).to.eql({
+    expect(outboundOutputState).to.eql(fromJS({
       app: {
         reducer: {
           data: {
@@ -201,13 +203,13 @@ describe('Redux persists transform expire', function () {
           }
         }
       }
-    });
+    }));
 
     done();
   });
 
   it('should allow a user to override the default state', function (done) {
-    var state = {
+    var state = fromJS({
       app: {
         reducer: {
           data: {
@@ -216,7 +218,7 @@ describe('Redux persists transform expire', function () {
           }
         }
       }
-    };
+    });
 
     var config = {
       defaultState: {
@@ -230,7 +232,7 @@ describe('Redux persists transform expire', function () {
     var outboundOutputState = transform.out(state);
 
     expect(inboundOutputState).to.eql(state);
-    expect(outboundOutputState).to.eql({
+    expect(outboundOutputState).to.eql(fromJS({
       app: {
         reducer: {
           data: {
@@ -238,7 +240,7 @@ describe('Redux persists transform expire', function () {
           }
         }
       }
-    });
+    }));
 
     done();
   });
