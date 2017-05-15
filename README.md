@@ -37,7 +37,8 @@ Your expires key should be present in each reducer, which should be expired. E.g
 
 ## Configuration
 
-| Attr         | Type   | Default            | Notes                                               |
-| ------------ | ------ | ------------------ | --------------------------------------------------- |
-| expireKey    | String | 'persistExpiresAt' | Name of the attribute holding the expire date value |
-| defaultState | Any    | {}                 | Shape of the state after expirations happen         |
+| Attr           | Type    | Default            | Notes                                                           |
+| -------------- | ------- | ------------------ | --------------------------------------------------------------- |
+| expireKey      | String  | 'persistExpiresAt' | Name of the attribute holding the expire date value             |
+| defaultState   | Any     | {}                 | Shape of the state after expirations happen                     |
+| deleteOnExpire | Boolean | false              | Removes key from storage instead of setting it to initial state |
